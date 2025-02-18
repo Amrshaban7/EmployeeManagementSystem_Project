@@ -1,0 +1,226 @@
+﻿@model EMS_Project.ViewModels.CreateUserEmployeeViewModel
+
+@{
+    ViewData["Title"] = "AddUsers";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+@* <div>
+    <a asp-action="Index">Back to List</a>
+</div> *@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .small-input {
+            height: 35px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            /* Adjust other properties as needed */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Left Side Nav -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Index">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageDepartments">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Departments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageUsers">
+                    <i class="icon-head menu-icon"></i>
+                    <span class="menu-title">Users</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main body -->
+    <div class="main-panel">
+        <div class="content-wrapper">
+
+            @* // Quotes *@
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Add new User
+                            </h3>
+
+
+                        </div>
+                        @*  <div class="col-12 col-xl-4">
+                            <div class="justify-content-end d-flex">
+                                <div class="flex-md-grow-1 flex-xl-grow-0">
+                                    <button class="btn btn-sm btn-light bg-white" type="button" asp-action="Create">
+                                        <h5> Create New Department <i class="bi bi-plus"></i> </h5>
+                                    </button>
+                                </div>
+                            </div>
+                        </div> *@
+                    </div>
+                </div>
+            </div>
+            @* // Form *@
+            <div class="row">
+
+                <form asp-action="AddUsers" method="post" enctype="multipart/form-data">
+
+                    <div class="form-row">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group col-md-6">
+                            <label asp-for="UserName" class="control-label"></label>
+                            <input asp-for="UserName" class="form-control small-input" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label asp-for="Email" class="control-label"></label>
+                            <input asp-for="Email" type="email" class="form-control small-input" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Password" class="control-label">Password</label>
+                            <input asp-for="Password" type="password" class="form-control small-input" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label asp-for="RolesId" class="control-label">Role</label>
+                            <select asp-for="RolesId" asp-items="ViewBag.Roles" class="form-control small-input">
+                                <option value="">Select Role</option>
+                            </select>
+                            <span asp-validation-for="RolesId" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+
+                        <div class="form-group col-md-6">
+                            <label asp-for="FirstName" class="control-label"></label>
+                            <input asp-for="FirstName" class="form-control small-input" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="LastName" class="control-label"></label>
+                            <input asp-for="LastName" class="form-control small-input" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="PhoneNumber" class="control-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control small-input" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="HireDate" class="control-label"></label>
+                            <input asp-for="HireDate" type="date" class="form-control small-input" />
+                            <span asp-validation-for="HireDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label asp-for="Salary" class="control-label"></label>
+                            <input asp-for="Salary" type="number" step="0.01" class="form-control small-input" />
+                            <span asp-validation-for="Salary" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="JobTitle" class="control-label"></label>
+                            <input asp-for="JobTitle" class="form-control small-input" />
+                            <span asp-validation-for="JobTitle" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Department_Id" class="control-label">Department Name</label>
+                            <select asp-for="Department_Id" asp-items="ViewBag.Departments" class="form-control small-input" >
+                                <option value="">Select Department</option>
+                            </select>
+                            <span asp-validation-for="Department_Id" class="text-danger"></span>
+                        </div>
+
+                        <div class="w-100"></div> <!-- Forces a new line -->
+
+                        <div class="form-group col-md-6">
+                        <label asp-for="ImageFile" class="control-label">Upload Profile Image</label>
+                        <!-- Image Preview -->
+                        <img id="imagePreview" src="#"
+                             alt="Image Preview"
+                             style="display: none; max-width: 200px; max-height: 200px; margin-top: 10px; border-radius: 10px;" />
+                        <!-- File Input -->
+                        <input asp-for="ImageFile" id="ImageFile" type="file" class="form-control" accept="image/*" />
+                        <!-- Validation -->
+                        <span asp-validation-for="ImageFile" class="text-danger"></span>
+                        </div>
+
+                        <div class="w-100"></div> <!-- Forces a new line -->
+
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                        </div>
+
+                    </div>
+                </form>
+ 
+
+                <div class="w-100"></div> <!-- Forces a new line -->
+
+                <div>
+                    <a asp-action="ManageUsers">Back to List</a>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. from Employee Mangment System. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
+            </div>
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Made by <a href="">AmrShaban</a></span>
+            </div>
+        </footer>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+        <script>
+            document.getElementById('ImageFile').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('imagePreview');
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result; // Set the preview image source
+                        preview.style.display = 'block'; // Make the image visible
+                    };
+                    reader.readAsDataURL(file); // Read the file to generate a data URL
+                } else {
+                    preview.style.display = 'none'; // Hide the image preview if no file is selected
+                }
+            });
+        </script>
+    }
+</body>
+
+</html>
+

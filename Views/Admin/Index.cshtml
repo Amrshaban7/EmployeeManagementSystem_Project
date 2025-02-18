@@ -1,0 +1,263 @@
+﻿@model IEnumerable<EMS_Project.ViewModels.DepartmentSummaryViewModel>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_DashboardLayout";
+
+   
+
+}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+        .table-responsive {
+            overflow-x: hidden; /* Removes horizontal scroll */
+        }
+
+        </style>
+    </head>
+<body>
+
+    <!-- Left Side Nav -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Index">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageDepartments">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Departments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageUsers">
+                    <i class="icon-head menu-icon"></i>
+                    <span class="menu-title">Users</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main body -->
+    <div class="main-panel">
+        <div class="content-wrapper">
+
+           @* // Quotes *@
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Welcome @ViewBag.AdminName
+                            </h3>
+                            <h6 class="font-weight-normal mb-0">@ViewBag.Quote</h6>
+                        </div>
+                        <div class="col-12 col-xl-4">
+                            @* <div class="justify-content-end d-flex">
+                                <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
+                                    <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button" id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <i class="mdi mdi-calendar"></i> Today (10 Jan 2021)
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuDate2">
+                                        <a class="dropdown-item" href="#">January - March</a>
+                                        <a class="dropdown-item" href="#">March - June</a>
+                                        <a class="dropdown-item" href="#">June - August</a>
+                                        <a class="dropdown-item" href="#">August - November</a>
+                                    </div>
+                                </div>
+                            </div> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+           @* // Pic , time, Statics *@
+            <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+                    <div class="card tale-bg">
+                        <div class="card-people mt-auto">
+                            <img src="~/DashboardAssets/images/dashboard/people.svg" alt="people">
+                            <div class="weather-info">
+                                <div class="d-flex">
+                                    <div>
+                                        <h2 class="mb-0 font-weight-normal"><i class="@ViewBag.WeatherIconClass"></i>@ViewBag.CurrentTime</h2>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="location font-weight-normal">@ViewBag.City</h4>
+                                        <h6 class="font-weight-normal">@ViewBag.Country</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 grid-margin transparent">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="card card-tale">
+                                <div class="card-body">
+                                    <p class="mb-4">Pending Leave Requests This Month</p>
+                                    <p class="fs-30 mb-2">@ViewBag.PendingRequest</p>
+                                    <p>Approved: @ViewBag.ApprovedRequest | Rejected: @ViewBag.RejectedRequest </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="card card-dark-blue">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Users</p>
+                                    <p class="fs-30 mb-2">@ViewBag.Users</p>
+                                    <p>Lockout users: @ViewBag.LockoutUsers</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                            <div class="card card-light-blue">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Departmens</p>
+                                    <p class="fs-30 mb-2">@ViewBag.Departmens</p>
+                                    <p>new deapartments this year: @ViewBag.NewDepartmens</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 stretch-card transparent">
+                            <div class="card card-light-danger">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Salaries</p>
+                                    <p class="fs-30 mb-2">$@ViewBag.Salaries</p>
+                                    <p>New employees this month: @ViewBag.NewEmployees</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           @* // Chart & record *@
+            <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title">Leave Requests Details</p>
+                            <p class="font-weight-500">Below is an overview of leave requests, showing the breakdown of approved, rejected, and pending requests this month:</p>
+                            <div class="d-flex flex-wrap mb-5">
+                                <div class="mr-5 mt-3">
+                                    <p class="text-muted">Total Requests</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.TotalRequests</h3>
+                                </div>
+                                <div class="mr-5 mt-3">
+                                    <p class="text-muted">Pending</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.PendingRequest</h3>
+                                </div>
+                                <div class="mr-5 mt-3">
+                                    <p class="text-muted">Approved</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.ApprovedRequest</h3>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="text-muted">Rejected</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.RejectedRequest</h3>
+                                </div>
+                            </div>
+                            @* // Chart *@
+                            <div id="donutChartContainer" style="width:420px; height:320px; margin:20px auto; padding:5px;">
+                                <canvas id="donutChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title mb-0">Departments details</p>
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th class="pl-0 pb-2 border-bottom">Name of Department</th>
+                                            <th class="border-bottom pb-2">Number of Employees</th>
+                                            <th class="border-bottom pb-2 salary-column">Salaries</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td class="pl-0 pb-0">@item.DepartmentName</td>
+                                                <td class="pb-0"><p class="mb-0"><span class="font-weight-bold mr-2">@item.EmployeeCount</span></p></td>
+                                                <td class="pb-0 salary-column">$@item.TotalSalary</td> <!-- Fixed typo here -->
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+   
+    </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. from Employee Mangment System. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
+            </div>
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Made by <a href="">AmrShaban</a></span>
+            </div>
+        </footer>
+    </div>
+
+    @section Scripts {
+        <!-- Include Chart.js from a CDN (if not already included in your layout) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Wait until the document is ready
+            document.addEventListener("DOMContentLoaded", function () {
+                var ctx = document.getElementById('donutChart').getContext('2d');
+                var donutChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+
+                        labels: ['Pending Requests', 'Approved Requests', 'Rejected Requests'],
+                        datasets: [{
+                            data: [@ViewBag.PendingRequest, @ViewBag.ApprovedRequest, @ViewBag.RejectedRequest],
+                            backgroundColor: [
+                                '#FFCE56',
+                                '#FF6384',
+                                '#36A2EB'
+                            ],
+                            hoverBackgroundColor: [
+                                '#FFCE56',
+                                '#FF6384',
+                                '#36A2EB'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+
+</html>
+
+

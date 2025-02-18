@@ -1,0 +1,296 @@
+﻿@model X.PagedList.IPagedList<EMS_Project.ViewModels.UserEmployeeViewModel>
+
+@{
+    ViewData["Title"] = "ManageEmployees";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+
+    // Mapping of Role IDs to badge CSS classes.
+    var roleBadgeClasses = new Dictionary<int, string>
+    {
+           // Admin: Red badge
+        { 2, "badge badge-warning" },   // Manager: yellow badge
+              // Employee: blue badge (or info style)
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .action-icon {
+            color: black;
+            font-weight: normal;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+
+            .action-icon:hover {
+                color: blue !important;
+                font-weight: bold;
+            }
+
+        .delete-icon {
+            color: red;
+        }
+
+            .delete-icon:hover {
+                color: darkred !important; /* Optional for hover effect on delete */
+            }
+
+        .large-font {
+            font-family: Cambria, Cochin, Georgia, Times, Times New Roman, serif;
+            font-size: 25px;
+        }
+
+        #create {
+            float: right;
+            font-size: 20px;
+        }
+
+        .bi-plus {
+            font-weight: bold;
+            font-size: 2rem;
+        }
+
+        .swal-icon-padding {
+            /* position: absolute; */
+            top: 10%;
+            left: 10%;
+            transform: translate(-60%,30%);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Left Side Nav -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Index">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageLeaveRequests">
+                    <i class="icon-paper menu-icon"></i>
+                    <span class="menu-title">Leave Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageEmployees">
+                    <i class="icon-head menu-icon"></i>
+                    <span class="menu-title">Employees</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+    <!-- Main body -->
+    <div class="main-panel">
+        <div class="content-wrapper">
+
+            @* // Quotes *@
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Manage Employees
+                            </h3>
+
+                        </div>
+                        <div class="col-12 col-xl-4">
+                            <div class="justify-content-end d-flex">
+                                <div class="flex-md-grow-1 flex-xl-grow-0">
+
+                                    <button class="btn btn-sm btn-light bg-white" type="button">
+                                        <a asp-action="AddUsers" style="text-decoration:none; color:black;">Create New User <i class="bi bi-plus"></i></a>
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* // List of the table *@
+            <div class="row">
+                <div class="col-md-12 grid-margin stretch-card">
+                    <div class="card tale-bg">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th> <!-- Record number header -->
+                                    <th>Profile Image</th>
+                                    <th>Employee Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Hire Date</th>
+                                    <th>Job Title</th>
+                                    <th>Salary</th>
+                                    @* <th>Actions</th> *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var request in Model.Select((item, index) => new { item, index }))
+                                {
+                                    <tr>
+                                        <!-- Calculate the record number for each row -->
+                                        <td>@((Model.PageNumber - 1) * Model.PageSize + request.index + 1)</td>
+                                        <td>
+                                            <img src="@Url.Content(string.IsNullOrEmpty(request.item.ProfileImage)
+                                    ? "~/images/default-profile.png"
+                                    : "~/images/" + request.item.ProfileImage)"
+                                                 alt="Profile Image"
+                                                 asp-append-version="true" style="border-radius:50%;" width="70" height="70" />
+                                        </td>
+                                        <td>@Html.DisplayFor(modelItem => request.item.FullName)</td>
+                                        <td>@Html.DisplayFor(modelItem => request.item.Email)</td>
+                                        <td>@Html.DisplayFor(modelItem => request.item.PhoneNumber)</td>
+                                        <td>@Html.DisplayFor(modelItem => request.item.HireDate)</td>
+                                        @if (roleBadgeClasses.ContainsKey(request.item.RolesId))
+                                        {
+                                            <td class="font-weight-medium">
+                                                <div class="@(roleBadgeClasses[request.item.RolesId])">
+                                                    @Html.DisplayFor(modelItem => request.item.JobTitle)
+                                                </div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                @Html.DisplayFor(modelItem => request.item.JobTitle)
+                                            </td>
+                                        }
+                                        <td>$@Html.DisplayFor(modelItem => request.item.Salary)</td>
+                                        @* <td>
+                                            <a style="text-decoration: none" asp-action="EditUsers" asp-route-id="@request.item.UserId">
+                                                <i style="color:black;" class="bi bi-pencil-square action-icon" data-toggle="tooltip" title="Edit"></i>
+                                            </a>
+                                            &nbsp;
+                                            <a href="javascript:void(0);" class="delete-item" data-delete-url="@Url.Action("DeleteUsers", "Admin", new { id = request.item.UserId })">
+                                                <i style="color:red;" class="bi bi-trash3 action-icon delete-icon" data-toggle="tooltip" title="Delete"></i>
+                                            </a>
+                                        </td> *@
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination and Total Records -->
+                        <div class="d-flex align-items-center mt-3">
+                            <!-- Pagination in the center -->
+                            <div class="flex-grow-1 d-flex justify-content-center">
+                                @Html.PagedListPager(Model, page => Url.Action("ManageEmployees", new { page }),
+                                         new X.PagedList.Mvc.Core.PagedListRenderOptions
+                                {
+                                    DisplayLinkToFirstPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToLastPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToPreviousPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToNextPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    MaximumPageNumbersToDisplay = 5,
+                                    LiElementClasses = new[] { "page-item" },
+                                    PageClasses = new[] { "page-link" },
+                                    UlElementClasses = new[] { "pagination", "justify-content-center" },
+                                    LinkToFirstPageFormat = "<<",
+                                    LinkToPreviousPageFormat = "<",
+                                    LinkToNextPageFormat = ">",
+                                    LinkToLastPageFormat = ">>"
+                                })
+                            </div>
+                            <!-- Total records display on the right -->
+                            <div class="ml-auto d-flex align-items-center pr-5">
+                                <p class="mb-0 font-weight-bold">Total Records: @Model.TotalItemCount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. from Employee Mangment System. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
+            </div>
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Made by <a href="">AmrShaban</a></span>
+            </div>
+        </footer>
+    </div>
+
+    @section Scripts {
+
+
+
+        <script>
+                            $(document).ready(function () {
+                $('.delete-item').on('click', function () {
+                    var deleteUrl = $(this).data('delete-url');
+                    console.log("Delete link clicked. URL:", deleteUrl);
+
+                    // Use SweetAlert2 to show the confirmation dialog
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This action cannot be undone!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!',
+                                customClass: {
+                icon: 'swal-icon-padding' // Add custom padding to the icon
+            }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Proceed with deletion via AJAX POST
+                            $.ajax({
+                                type: "POST",
+                                url: deleteUrl,
+                                dataType: "json",
+                                success: function (response) {
+                                    if (response.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Deleted!',
+                                            text: response.message || 'Department deleted successfully.',
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        }).then(() => {
+                                            // Optionally, reload the page or update the UI
+                                            location.reload();
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.message || 'An error occurred while deleting the record.'
+                                        });
+                                    }
+                                },
+                                error: function () {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Error deleting the record.'
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        </script>
+    }
+</body>
+
+</html>

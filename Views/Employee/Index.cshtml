@@ -1,0 +1,266 @@
+﻿@model IEnumerable<EMS_Project.ViewModels.RecentLeaveRequestViewModel>
+
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_DashboardLayout";
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <style>
+        #LeaveTypeUnderLine {
+            text-decoration: underline; /* Sets the underline */
+            text-decoration-color: #8a7354; /* Sets the color for the underline */
+            text-decoration-style: wavy;
+            text-decoration-skip-ink: auto;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Left Side Nav -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Index">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageLeaveRequests">
+                    <i class="icon-paper menu-icon"></i>
+                    <span class="menu-title">Leave Requests</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main body -->
+    <div class="main-panel">
+        <div class="content-wrapper">
+
+            @* // Quotes *@
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-10 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Welcome @ViewBag.EmployeeFullName | @ViewBag.EmployeeDepartment Department
+                            </h3>
+                            <h6 class="font-weight-normal mb-0">@ViewBag.Quote</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* // Pic , time, Statics *@
+            <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+                    <div class="card tale-bg">
+                        <div class="card-people mt-auto">
+                            <img src="~/DashboardAssets/images/dashboard/people.svg" alt="people">
+                            <div class="weather-info">
+                                <div class="d-flex">
+                                    <div>
+                                        <h2 class="mb-0 font-weight-normal"><i class="@ViewBag.WeatherIconClass"></i>@ViewBag.CurrentTime</h2>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="location font-weight-normal">@ViewBag.City</h4>
+                                        <h6 class="font-weight-normal">@ViewBag.Country</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 grid-margin transparent">
+                    <div class="row">
+
+                        <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="card card-tale">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Leave Requests</p>
+                                    <p class="fs-30 mb-2">@ViewBag.EmployeeTotalRequests</p>
+                                    <p>Your Avg Leave Duration: @ViewBag.AvgLeaveDuration Days</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="card card-dark-blue">
+                                <div class="card-body">
+                                    <p class="mb-4"> Pending Leave Requests</p>
+                                    <p class="fs-30 mb-2">@ViewBag.EmployeePendingRequest</p>
+                                    <p>Approved: @ViewBag.EmployeeApprovedRequest | Rejected: @ViewBag.EmployeeRejectedRequest</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                            <div class="card card-light-blue">
+                                <div class="card-body">
+                                    <p class="mb-4">Joined: @ViewBag.EmployeeHireDate | Current Salary: </p>
+                                    <p class="fs-30 mb-2">$@ViewBag.EmployeeSalary</p>
+                                    <p>Email: @ViewBag.EmployeeEmail</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 stretch-card transparent">
+                            <div class="card card-light-danger">
+                                <div class="card-body">
+                                    <p class="mb-4">Upcoming Approved Leave:</p>
+                                    <p class="fs-25 mb-2">@ViewBag.UpcomingApprovedLeave</p>
+                                    <p></p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            @* // Chart & recent activity *@
+            <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title mb-0">Your Leave request trends for the last 6 months</p>
+
+                            <div class="container">
+                                <canvas id="leaveTrendsChart" width="580" height="450"></canvas>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title">Recent Activity</p>
+
+                            <ul class="icon-data-list">
+                                @if (Model.Any())
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        <li>
+                                            <div class="d-flex">
+                                                <img src="@Url.Content(string.IsNullOrEmpty(item.ProfileImage) ? "~/images/default-profile.png" : "~/images/" + item.ProfileImage)" alt="user">
+                                                <div>
+                                                    <p class="text-info mb-1"><span style="font-weight:bold;">@item.EmployeeName</span></p>
+                                                    <p class="mb-0">
+                                                        Your leave Request from: @item.StartDate | To: @item.EndDate is:  <span class="badge @(item.RequestStatus == "Approved" ? "badge-success" :
+                                                         item.RequestStatus == "Rejected" ? "badge-danger" : "badge-warning")"> @item.RequestStatus </span>
+                                                    </p>
+                                                    <small>@item.RequestTime</small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li>No recent leave request activity found.</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* // Bar chart and rates *@
+            
+        </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. from Employee Mangment System. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
+            </div>
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Made by <a href="">AmrShaban</a></span>
+            </div>
+        </footer>
+    </div>
+
+    @section Scripts {
+        <!-- Include Chart.js from a CDN (if not already included in your layout) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        @* // Bar Chart *@
+        <script>
+                // Retrieve labels and counts from ViewBag
+                var labels = @Html.Raw(ViewBag.Labels);
+                var counts = @Html.Raw(ViewBag.Counts);
+
+                // Create a bar chart
+                var ctx = document.getElementById('leaveTrendsChart').getContext('2d');
+                var leaveTrendsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Leave Requests',
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      onClick: function(e, legendItem, legend) {
+                        // Do nothing to disable toggling.
+                      },
+                      labels: {
+                        boxWidth: 0
+                      }
+                    }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        stepSize: 5
+                      }
+                    }
+                  },
+                  responsive: true,
+                  maintainAspectRatio: false
+                }
+            });
+        </script>
+    }
+
+    
+</body>
+
+</html>
+
+

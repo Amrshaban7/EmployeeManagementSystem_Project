@@ -1,0 +1,451 @@
+﻿@model IEnumerable<EMS_Project.ViewModels.RecentLeaveRequestViewModel>
+
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_DashboardLayout";
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <style>
+        #LeaveTypeUnderLine{
+           
+            text-decoration: underline; /* Sets the underline */
+            text-decoration-color: #8a7354; /* Sets the color for the underline */
+            text-decoration-style: wavy;
+            text-decoration-skip-ink: auto;
+        }
+        
+        </style>
+
+    </head>
+
+<body>
+
+    <!-- Left Side Nav -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Index">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageLeaveRequests">
+                    <i class="icon-paper menu-icon"></i>
+                    <span class="menu-title">Leave Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageEmployees">
+                    <i class="icon-head menu-icon"></i>
+                    <span class="menu-title">Employees</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main body -->
+    <div class="main-panel">
+        <div class="content-wrapper">
+
+            @* // Quotes *@
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Welcome @ViewBag.ManagerName
+                            </h3>
+                            <h6 class="font-weight-normal mb-0">@ViewBag.Quote</h6>
+                        </div>
+                        <div class="col-12 col-xl-4">
+                            @* <div class="justify-content-end d-flex">
+                                <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
+                                    <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button" id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <i class="mdi mdi-calendar"></i> Today (10 Jan 2021)
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuDate2">
+                                        <a class="dropdown-item" href="#">January - March</a>
+                                        <a class="dropdown-item" href="#">March - June</a>
+                                        <a class="dropdown-item" href="#">June - August</a>
+                                        <a class="dropdown-item" href="#">August - November</a>
+                                    </div>
+                                </div>
+                            </div> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* // Pic , time, Statics *@
+            <div class="row">
+                <div class="col-md-6 grid-margin stretch-card">
+                    <div class="card tale-bg">
+                        <div class="card-people mt-auto">
+                            <img src="~/DashboardAssets/images/dashboard/people.svg" alt="people">
+                            <div class="weather-info">
+                                <div class="d-flex">
+                                    <div>
+                                        <h2 class="mb-0 font-weight-normal"><i class="@ViewBag.WeatherIconClass"></i>@ViewBag.CurrentTime</h2>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="location font-weight-normal">@ViewBag.City</h4>
+                                        <h6 class="font-weight-normal">@ViewBag.Country</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 grid-margin transparent">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="card card-tale">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Leave Requests This Month</p>
+                                    <p class="fs-30 mb-2">@ViewBag.DepartmentTotalRequests</p>
+                                    <p>Approved: @ViewBag.DepartmentApprovedRequest | Rejected: @ViewBag.DepartmentRejectedRequest | Pending: @ViewBag.DepartmentPendingRequest </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="card card-dark-blue">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Employees under your supervision
+                                    <p class="fs-30 mb-2">@ViewBag.NumOfEmployeeUnderThisManager</p>
+                                    <p>New employees this month: @ViewBag.DepartmentNewEmployees</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                            <div class="card card-light-blue">
+                                <div class="card-body">
+                                    <p class="mb-4"></p>
+                                    <p class="fs-30 mb-2">@ViewBag.DepartmentBirthdayMessage</p>
+                                    <p>days remaining until the department birthday.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 stretch-card transparent">
+                            <div class="card card-light-danger">
+                                <div class="card-body">
+                                    <p class="mb-4">Total Department Salaries</p>
+                                    <p class="fs-30 mb-2">$@ViewBag.DepartmentTotalSalaries</p>
+                                    <p></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* // Chart & recent activity *@
+            <div class="row">
+                <div class="col-md-7 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title">Leave Requests Details</p>
+                            <p class="font-weight-500">Below is an overview of Leave Type Breakdown, showing the distribution of leave types this month:</p>
+                            <div class="d-flex flex-wrap mb-5">
+
+                                <div class="mr-5 mt-3">
+                                    <p class="text-muted">Total Requests</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.DepartmentTotalRequests</h3>
+                                </div>
+                                <div class="mr-5 mt-3">
+                                    <p class="text-muted">Pending</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.DepartmentPendingRequest</h3>
+                                </div>
+                                <div class="mr-5 mt-3">
+                                    <p class="text-muted">Approved</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.DepartmentApprovedRequest</h3>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="text-muted">Rejected</p>
+                                    <h3 class="text-primary fs-30 font-weight-medium">@ViewBag.DepartmentRejectedRequest</h3>
+                                </div>
+
+                            </div>
+                            @* // Chart *@
+                            <div id="donutChartContainer" style="width:420px; height:320px; margin:20px auto; padding:5px;">
+                                <canvas id="donutChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 grid-margin stretch-card">
+                <div class="card">
+                        <div class="card-body">
+                            <p class="card-title">Recent Activity</p>
+
+                            <ul class="icon-data-list">
+                                @if (Model.Any())
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                <li>
+                                    <div class="d-flex">
+                                     <img src="@Url.Content(string.IsNullOrEmpty(item.ProfileImage) ? "~/images/default-profile.png" : "~/images/" + item.ProfileImage)" alt="user">
+                                        <div>
+                                                    <p class="text-info mb-1"><span style="font-weight:bold;">@item.EmployeeName</span></p>
+                                                    <p class="mb-0">
+                                                         LeaveRequest of type <span id="LeaveTypeUnderLine">@item.LeaveTypeName</span> is:  <span class="badge @(item.RequestStatus == "Approved" ? "badge-success" :
+                                                         item.RequestStatus == "Rejected" ? "badge-danger" : "badge-warning")"> @item.RequestStatus </span>
+                                                    </p>
+                                            <small>@item.RequestTime</small>
+                                        </div>
+                                    </div>
+                                </li>
+                                  }
+                                }
+                                else
+                                {
+                                    <li>No recent leave request activity found.</li>
+                                }
+                            </ul>
+                        </div>
+                </div>
+        </div>
+    </div>
+            @* // Bar chart and rates *@
+            <div class="row">
+
+            <div class="col-md-8 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                                <p class="card-title mb-0">Leave request trends for the last 6 months</p>
+
+                                <div class="container">
+                                    <canvas id="leaveTrendsChart" width="600" height="400"></canvas>
+                                </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 grid-margin stretch-card">
+
+                        <div class="row">
+
+                            <div class="col-md-12 grid-margin stretch-card">
+
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p class="card-title">Leave request rates</p>
+                                        <div class="charts-data">
+                                            <div class="mt-3">
+                                                <p class="mb-0">Pending Rate</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="progress progress-md flex-grow-1 mr-4">
+                                                        <div class="progress-bar bg-info" role="progressbar" style="width: @ViewBag.PendingRate%;" aria-valuenow="@ViewBag.PendingRate" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <p class="mb-0">@ViewBag.PendingRate %</p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="mb-0">Approval Rate</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="progress progress-md flex-grow-1 mr-4">
+                                                        <div class="progress-bar bg-info" role="progressbar" style="width: @ViewBag.ApprovalRate%;" aria-valuenow="@ViewBag.ApprovalRate" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <p class="mb-0">@ViewBag.ApprovalRate %</p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="mb-0">Rejection Rate</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="progress progress-md flex-grow-1 mr-4">
+                                                        <div class="progress-bar bg-info" role="progressbar" style="width: @ViewBag.RejectionRate%;" aria-valuenow="@ViewBag.RejectionRate" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <p class="mb-0">@ViewBag.RejectionRate %</p>
+                                                </div>
+                                            </div>
+                                        
+                                            <div class="mt-3">
+                                                <p class="mb-0">Avg. Leave Duration</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="progress progress-md flex-grow-1 mr-4">
+                                                        <div class="progress-bar bg-warning" role="progressbar" style="width: @ViewBag.AvgLeaveDuration%;" aria-valuenow="@ViewBag.AvgLeaveDuration" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <p class="mb-0">@ViewBag.AvgLeaveDuration days</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                      <div class="col-md-12 stretch-card grid-margin grid-margin-md-0">
+                      <div class="card data-icon-card-primary">
+                            <div class="card-body">
+                                <p class="card-title text-white">
+                                    Employee Engagement
+                                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Employees are considered engaged if they participated in at least one leave request this month."></i>
+                                        </p>
+                                <div class="row">
+                                    <div class="col-8 text-white">
+                                        <h3>@ViewBag.EngagementRate%</h3>
+                                        <p class="text-white font-weight-500 mb-0">Employees actively participating this month.</p>
+                                    </div>
+                                            <div class="col-4 text-end">
+                                        <i class="@ViewBag.DynamicIcon text-white" style="font-size: 3.5rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                      </div>
+                      </div>
+
+                        </div>
+
+            </div>
+
+
+    </div>
+   
+    </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. from Employee Mangment System. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
+            </div>
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Made by <a href="">AmrShaban</a></span>
+            </div>
+        </footer>
+    </div>
+
+    @section Scripts {
+            <!-- Include Chart.js from a CDN (if not already included in your layout) -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            @* // Dount Chart *@
+            <script>
+                // Wait until the document is ready
+                document.addEventListener("DOMContentLoaded", function () {
+                    var ctx = document.getElementById('donutChart').getContext('2d');
+                    var donutChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+
+                    labels: ['Sick Leave', 'Annual Leave', 'Unpaid Leave', 'Religious Leave', 'Marriage Leave', 'Public Holiday Leave'],
+                    datasets: [{
+                    data: [
+                       @ViewBag.DepSickLeaveRequest,
+                       @ViewBag.DepAnnualLeaveRequest,
+                       @ViewBag.DepUnpaidLeaveRequest,
+                       @ViewBag.DepReligiousLeaveRequest,
+                       @ViewBag.DepMarriageLeaveRequest,
+                       @ViewBag.DepPublicHolidayLeaveRequest
+                    ],
+                    backgroundColor: [
+                    '#FF6384', // Sick Leave – a red/pink tone
+                    '#36A2EB', // Annual Leave – a blue tone
+                    '#FFCE56', // Unpaid Leave – a yellow tone
+                    '#9C27B0', // Religious Leave – a purple tone
+                    '#E91E63', // Marriage Leave – a vibrant pink tone
+                    '#4CAF50'  // Public Holiday Leave – a green tone
+                    ],
+                hoverBackgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#9C27B0',
+                    '#E91E63',
+                    '#4CAF50'
+                ]
+                }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'right'
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+
+            @* // Bar Chart *@
+            <script>
+                // Retrieve labels and counts from ViewBag
+                var labels = @Html.Raw(ViewBag.Labels);
+                var counts = @Html.Raw(ViewBag.Counts);
+
+                // Create a bar chart
+                var ctx = document.getElementById('leaveTrendsChart').getContext('2d');
+                var leaveTrendsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Leave Requests',
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      onClick: function(e, legendItem, legend) {
+                        // Do nothing to disable toggling.
+                      },
+                      labels: {
+                        boxWidth: 0
+                      }
+                    }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        stepSize: 5
+                      }
+                    }
+                  },
+                  responsive: true,
+                  maintainAspectRatio: false
+                }
+            });
+            </script>
+            }
+
+            @* // tooltip *@
+            <script>
+                        $(document).ready(function () {
+                        $('[data-toggle="tooltip"]').tooltip();
+                        });
+             </script>
+</body>
+
+</html>
+
+

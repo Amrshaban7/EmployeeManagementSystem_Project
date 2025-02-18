@@ -1,0 +1,317 @@
+﻿@model EMS_Project.ViewModels.ManageLeaveRequestsViewModel
+
+@{
+    ViewData["Title"] = "ManageLeaveRequest";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+
+    // Mapping of Role IDs to badge CSS classes.
+    var roleBadgeClasses = new Dictionary<int, string>
+    {
+           // Admin: Red badge
+        { 2, "badge badge-warning" },   // Manager: yellow badge
+              // Employee: blue badge (or info style)
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .action-icon {
+            color: black;
+            font-weight: normal;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+
+            .action-icon:hover {
+                color: blue !important;
+                font-weight: bold;
+            }
+
+        .delete-icon {
+            color: red;
+        }
+
+            .delete-icon:hover {
+                color: darkred !important; /* Optional for hover effect on delete */
+            }
+
+        .large-font {
+            font-family: Cambria, Cochin, Georgia, Times, Times New Roman, serif;
+            font-size: 25px;
+        }
+
+        #create {
+            float: right;
+            font-size: 20px;
+        }
+
+        .bi-plus {
+            font-weight: bold;
+            font-size: 2rem;
+        }
+
+        .swal-icon-padding {
+            /* position: absolute; */
+            top: 10%;
+            left: 10%;
+            transform: translate(-60%,30%);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Left Side Nav -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Index">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageLeaveRequests">
+                    <i class="icon-paper menu-icon"></i>
+                    <span class="menu-title">Leave Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-action="ManageEmployees">
+                    <i class="icon-head menu-icon"></i>
+                    <span class="menu-title">Employees</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+    <!-- Main body -->
+    <div class="main-panel">
+        <div class="content-wrapper">
+
+            <br />
+           
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Leave Requests - Pending
+                            </h3>
+                        </div>
+                        </div>
+                </div>
+            </div>
+
+            @* // List of the table 1 *@
+            <div class="row">
+                <div class="col-md-12 grid-margin stretch-card">
+                    <div class="card tale-bg">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Profile Image</th>
+                                    <th>Employee Name</th>
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Requested On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var request in Model.PendingRequests.Select((value, index) => new { value, index }))
+                                {
+                                    <tr>
+                                        <td>@((Model.PendingRequests.PageNumber - 1) * Model.PendingRequests.PageSize + request.index + 1)</td> <!-- Adjusted index with page offset -->
+
+                                        <td>
+                                            <img src="@Url.Content(string.IsNullOrEmpty(@request.value.Employee.Users.ProfileImage)
+                                                ? "~/images/default-profile.png" : "~/images/" + @request.value.Employee.Users.ProfileImage)" alt="Profile Image"
+                                                 asp-append-version="true" style="border-radius:50%;" width="70" height="70" />
+                                        </td>
+                                        <td>@(request.value.Employee.FirstName + " " + request.value.Employee.LastName)</td>
+                                        <td>@request.value.LeaveType.LeaveTypeName</td>
+                                        <td>@request.value.StartDate.ToShortDateString()</td>
+                                        <td>@request.value.EndDate.ToShortDateString()</td>
+                                        <td>@request.value.CreatedDate</td>
+                                        <td>
+                                            <!-- Actions like Approve/Reject buttons -->
+                                            <form asp-action="ApproveLeave" method="post" style="display:inline;">
+                                                <input type="hidden" name="id" value="@request.value.Id" />
+                                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                            </form>
+
+                                            <form asp-action="RejectLeave" method="post" style="display:inline;">
+                                                <input type="hidden" name="id" value="@request.value.Id" />
+                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <!-- Pending Requests Pagination and Total Records -->
+                        <div class="d-flex align-items-center mt-3">
+                            <!-- Pagination in the center -->
+                            <div class="flex-grow-1 d-flex justify-content-center">
+                                @Html.PagedListPager(Model.PendingRequests, page => Url.Action("ManageLeaveRequests", new { pendingPage = page, processedPage = Model.ProcessedRequests.PageNumber }),
+                                         new X.PagedList.Mvc.Core.PagedListRenderOptions
+                                {
+                                    DisplayLinkToFirstPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToLastPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToPreviousPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToNextPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    MaximumPageNumbersToDisplay = 5,
+                                    LiElementClasses = new[] { "page-item" },
+                                    PageClasses = new[] { "page-link" },
+                                    UlElementClasses = new[] { "pagination", "justify-content-center" },
+                                    LinkToFirstPageFormat = "<<",
+                                    LinkToPreviousPageFormat = "<",
+                                    LinkToNextPageFormat = ">",
+                                    LinkToLastPageFormat = ">>"
+                                })
+                            </div>
+
+                            <!-- Total records on the right -->
+                            <div class="ml-auto d-flex align-items-center pr-5">
+                                <p class="mb-0 font-weight-bold">Total Records: @Model.PendingRequests.TotalItemCount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <br />
+            <br />
+
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                            <h3 class="font-weight-bold">
+                                Leave Requests - Processed
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* // List of the table 2 *@
+            <div class="row">
+                <div class="col-md-12 grid-margin stretch-card">
+                    <div class="card tale-bg">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Profile Image</th>
+                                    <th>Employee Name</th>
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Processed On</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var request in Model.ProcessedRequests.Select((value, index) => new { value, index }))
+                                {
+                                    <tr>
+                                        <td>@((Model.ProcessedRequests.PageNumber - 1) * Model.ProcessedRequests.PageSize + request.index + 1)</td> <!-- Adjusted index with page offset -->
+                                        <td>
+                                        <img src="@Url.Content(string.IsNullOrEmpty(@request.value.Employee.Users.ProfileImage)
+                                           ? "~/images/default-profile.png" : "~/images/" + @request.value.Employee.Users.ProfileImage)" alt="Profile Image"
+                                           asp-append-version="true" style="border-radius:50%;" width="70" height="70" />
+                                        </td>
+                                        <td>@(request.value.Employee.FirstName + " " + request.value.Employee.LastName)</td>
+                                        <td>@request.value.LeaveType.LeaveTypeName</td>
+                                        <td>@request.value.StartDate.ToShortDateString()</td>
+                                        <td>@request.value.EndDate.ToShortDateString()</td>
+                                        <td>@request.value.ModifiedDate</td>
+                                        <td>
+                                            <span class="@(request.value.RequestStatus == "Rejected" ? "badge badge-danger" : request.value.RequestStatus == "Approved" ? "badge badge-success" : "badge badge-warning")">
+                                                @request.value.RequestStatus
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                               
+                            </tbody>
+                        </table>
+                        <!-- Processed Requests Pagination and Total Records -->
+                        <div class="d-flex align-items-center mt-3">
+                            <!-- Pagination in the center -->
+                            <div class="flex-grow-1 d-flex justify-content-center">
+                                @Html.PagedListPager(Model.ProcessedRequests, page => Url.Action("ManageLeaveRequests", new { processedPage = page, pendingPage = Model.PendingRequests.PageNumber }),
+                                         new X.PagedList.Mvc.Core.PagedListRenderOptions
+                                {
+                                    DisplayLinkToFirstPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToLastPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToPreviousPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    DisplayLinkToNextPage = X.PagedList.Mvc.Core.PagedListDisplayMode.Always,
+                                    MaximumPageNumbersToDisplay = 5,
+                                    LiElementClasses = new[] { "page-item" },
+                                    PageClasses = new[] { "page-link" },
+                                    UlElementClasses = new[] { "pagination", "justify-content-center" },
+                                    LinkToFirstPageFormat = "<<",
+                                    LinkToPreviousPageFormat = "<",
+                                    LinkToNextPageFormat = ">",
+                                    LinkToLastPageFormat = ">>"
+                                })
+                            </div>
+
+                            <!-- Total records on the right -->
+                            <div class="ml-auto d-flex align-items-center pr-5">
+                                <p class="mb-0 font-weight-bold">Total Records: @Model.ProcessedRequests.TotalItemCount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025. from Employee Mangment System. All rights reserved.</span>
+                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
+            </div>
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Made by <a href="">AmrShaban</a></span>
+            </div>
+        </footer>
+    </div>
+
+    @section Scripts {
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+                             
+            $(document).ready(function () {
+                var message = '@TempData["Message"]';
+                var messageType = '@TempData["MessageType"]';
+
+                if (message) {
+                    Swal.fire({
+                        icon: messageType || 'info', // Default to 'info' if no type is provided
+                        title: message
+                    });
+                }
+            });
+        </script>
+     }
+</body>
+
+</html>
