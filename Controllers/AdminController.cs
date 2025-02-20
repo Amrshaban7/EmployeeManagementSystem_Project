@@ -67,7 +67,7 @@ namespace EMS_Project.Controllers
             ViewBag.ProfileImage = userWithImage?.ProfileImage ?? "~/images/default-profile.png";
 
 
-            // Sample motivational quotes
+            // Motivational quotes
             string[] quotes = {
                  "Believe you can and you're halfway there.",
                  "Doubt kills more dreams than failure ever will.",
@@ -75,7 +75,7 @@ namespace EMS_Project.Controllers
                  "Do what you can, with what you have, where you are.",
                  "Don't let yesterday take up too much of today."
             };
-            // Get a random quote using the static Random instance
+            // Random quote using the static Random instance
             int index = rand.Next(quotes.Length);
             ViewBag.Quote = quotes[index];
 

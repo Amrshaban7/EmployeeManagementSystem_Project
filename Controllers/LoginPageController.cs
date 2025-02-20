@@ -50,7 +50,6 @@ namespace EMS_Project.Controllers
             }
 
             // Check if password is correct
-            
             if (!BCrypt.Net.BCrypt.Verify(Password, auth.PasswordHash))
             {
                 auth.FailedLoginAttempts++;
